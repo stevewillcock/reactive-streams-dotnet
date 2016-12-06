@@ -1,0 +1,171 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Reactive.Streams</name>
+    </assembly>
+    <members>
+        <member name="T:Reactive.Streams.IProcessor`2">
+            <summary>
+            A Processor represents a processing stage—which is both a <see cref="T:Reactive.Streams.ISubscriber`1"/>
+            and a <see cref="T:Reactive.Streams.IPublisher`1"/> and obeys the contracts of both.
+            </summary>
+            <typeparam name="T1">The type of element signaled to the <see cref="T:Reactive.Streams.ISubscriber`1"/></typeparam>
+            <typeparam name="T2">The type of element signaled to the <see cref="T:Reactive.Streams.IPublisher`1"/></typeparam>
+        </member>
+        <member name="T:Reactive.Streams.IPublisher`1">
+            <summary>
+            <para>
+            A <see cref="T:Reactive.Streams.IPublisher`1"/> is a provider of a potentially unbounded number of sequenced elements,
+            publishing them according to the demand received from its <see cref="T:Reactive.Streams.ISubscriber`1"/>.
+            </para>
+            <para>
+            A <see cref="T:Reactive.Streams.IPublisher`1"/> can serve multiple <see cref="T:Reactive.Streams.ISubscriber`1"/>s subscribed dynamically
+            at various points in time.
+            </para>
+            </summary>
+            <typeparam name="T">The type of element signaled.</typeparam>
+        </member>
+        <member name="M:Reactive.Streams.IPublisher`1.Subscribe(Reactive.Streams.ISubscriber{`0})">
+            <summary>
+            <para>
+            Request <see cref="T:Reactive.Streams.IPublisher`1"/> to start streaming data.
+            </para>
+            <para>
+            This is a "factory method" and can be called multiple times, each time starting a new
+            <see cref="T:Reactive.Streams.ISubscription"/>.
+            </para>
+            <para>
+            Each <see cref="T:Reactive.Streams.ISubscription"/> will work for only a single <see cref="T:Reactive.Streams.ISubscriber`1"/>.
+            </para>
+            <para>
+            A <see cref="T:Reactive.Streams.ISubscriber`1"/> should only subscribe once to a single
+            <see cref="T:Reactive.Streams.IPublisher`1"/>.
+            </para>
+            <para>
+            If the <see cref="T:Reactive.Streams.IPublisher`1"/> rejects the subscription attempt or otherwise fails
+            it will signal the error via <see cref="M:Reactive.Streams.ISubscriber`1.OnError(System.Exception)"/>.
+            </para>
+            </summary>
+            <param name="subscriber">The <see cref="T:Reactive.Streams.ISubscriber`1"/> that will consume signals
+            from this <see cref="T:Reactive.Streams.IPublisher`1"/></param>
+        </member>
+        <member name="T:Reactive.Streams.ISubscriber`1">
+            <summary>
+            <para>
+            Will receive call to <see cref="M:Reactive.Streams.ISubscriber`1.OnSubscribe(Reactive.Streams.ISubscription)"/> once after passing an instance of
+            <see cref="T:Reactive.Streams.ISubscriber`1"/> to <see cref="M:Reactive.Streams.IPublisher`1.Subscribe(Reactive.Streams.ISubscriber{`0})"/>.
+            </para>
+            <para>
+            No further notifications will be received until <see cref="M:Reactive.Streams.ISubscription.Request(System.Int64)"/> is called.
+            </para>
+            <para>After signaling demand:</para>
+            <para>1. One or more invocations of <see cref="M:Reactive.Streams.ISubscriber`1.OnNext(`0)"/> up to the maximum number defined by
+            <see cref="M:Reactive.Streams.ISubscription.Request(System.Int64)"/></para>
+            <para>2. Single invocation of <see cref="M:Reactive.Streams.ISubscriber`1.OnError(System.Exception)"/> or
+            <see cref="M:Reactive.Streams.ISubscriber`1.OnComplete"/> which signals a terminal state after which no further
+            events will be sent.</para>
+            <para>
+            Demand can be signaled via <see cref="M:Reactive.Streams.ISubscription.Request(System.Int64)"/> whenever the
+            <see cref="T:Reactive.Streams.ISubscriber`1"/> instance is capable of handling more.</para>
+            </summary>
+            <typeparam name="T">The type of element signaled.</typeparam>
+        </member>
+        <member name="M:Reactive.Streams.ISubscriber`1.OnSubscribe(Reactive.Streams.ISubscription)">
+            <summary>
+            <para>
+            Invoked after calling <see cref="M:Reactive.Streams.IPublisher`1.Subscribe(Reactive.Streams.ISubscriber{`0})"/>.
+            </para>
+            <para>
+            No data will start flowing until <see cref="M:Reactive.Streams.ISubscription.Request(System.Int64)"/> is invoked.
+            </para>
+            <para>
+            It is the responsibility of this <see cref="T:Reactive.Streams.ISubscriber`1"/> instance to call
+            <see cref="M:Reactive.Streams.ISubscription.Request(System.Int64)"/> whenever more data is wanted.
+            </para>
+            <para>
+            The <see cref="T:Reactive.Streams.IPublisher`1"/> will send notifications only in response to
+            <see cref="M:Reactive.Streams.ISubscription.Request(System.Int64)"/>.
+            </para>
+            </summary>
+            <param name="subscription"><see cref="T:Reactive.Streams.ISubscription"/> that allows requesting data
+            via <see cref="M:Reactive.Streams.ISubscription.Request(System.Int64)"/></param>
+        </member>
+        <member name="M:Reactive.Streams.ISubscriber`1.OnNext(`0)">
+            <summary>
+            Data notification sent by the <see cref="T:Reactive.Streams.IPublisher`1"/> in response to requests to
+            <see cref="M:Reactive.Streams.ISubscription.Request(System.Int64)"/>.
+            </summary>
+            <param name="element">The element signaled</param>
+        </member>
+        <member name="M:Reactive.Streams.ISubscriber`1.OnError(System.Exception)">
+            <summary>
+            <para>
+            Failed terminal state.
+            </para>
+            <para>
+            No further events will be sent even if <see cref="M:Reactive.Streams.ISubscription.Request(System.Int64)"/> is
+            invoked again.
+            </para>
+            </summary>
+            <param name="cause">The exception signaled</param>
+        </member>
+        <member name="M:Reactive.Streams.ISubscriber`1.OnComplete">
+            <summary>
+            <para>
+            Successful terminal state.
+            </para>
+            <para>
+            No further events will be sent even if <see cref="M:Reactive.Streams.ISubscription.Request(System.Int64)"/> is
+            invoked again.
+            </para>
+            </summary>
+        </member>
+        <member name="T:Reactive.Streams.ISubscription">
+            <summary>
+            <para>
+            A <see cref="T:Reactive.Streams.ISubscription"/> represents a one-to-one lifecycle of a <see cref="T:Reactive.Streams.ISubscriber`1"/>
+            subscribing to a <see cref="T:Reactive.Streams.ISubscriber`1"/>.
+            </para>
+            <para>
+            It can only be used once by a single <see cref="T:Reactive.Streams.IPublisher`1"/>.
+            </para>
+            <para>
+            It is used to both signal desire for data and cancel demand (and allow resource cleanup).
+            </para>
+            </summary>
+        </member>
+        <member name="M:Reactive.Streams.ISubscription.Request(System.Int64)">
+            <summary>
+            <para>
+            No events will be sent by a <see cref="T:Reactive.Streams.IPublisher`1"/> until demand is signaled via this method.
+            </para>
+            <para>
+            It can be called however often and whenever needed—but the outstanding cumulative demand
+            must never exceed <see cref="F:System.Int64.MaxValue"/>.
+            An outstanding cumulative demand of <see cref="F:System.Int64.MaxValue"/> may be treated by the
+            <see cref="T:Reactive.Streams.IPublisher`1"/> as "effectively unbounded".
+            </para>
+            <para>
+            Whatever has been requested can be sent by the <see cref="T:Reactive.Streams.IPublisher`1"/> so only signal demand
+            for what can be safely handled.
+            </para>
+            <para>
+            A <see cref="T:Reactive.Streams.IPublisher`1"/> can send less than is requested if the stream ends but
+            then must emit either <see cref="M:Reactive.Streams.ISubscriber`1.OnError(System.Exception)"/> or <see cref="M:Reactive.Streams.ISubscriber`1.OnComplete"/>.
+            </para>
+            </summary>
+            <param name="n">The strictly positive number of elements to requests to the upstream
+            <see cref="T:Reactive.Streams.IPublisher`1"/></param>
+        </member>
+        <member name="M:Reactive.Streams.ISubscription.Cancel">
+            <summary>
+            <para>
+            Request the <see cref="T:Reactive.Streams.IPublisher`1"/> to stop sending data and clean up resources.
+            </para>
+            <para>
+            Data may still be sent to meet previously signalled demand after calling cancel as this request is asynchronous.
+            </para>
+            </summary>
+        </member>
+    </members>
+</doc>
